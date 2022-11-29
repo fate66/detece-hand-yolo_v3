@@ -1,0 +1,27 @@
+{
+  "name": "detece-hand-yolo_v3",
+  "version": "1.0.0",
+  "description": "物体检测，包括手部检测、人脸检测、人检测、安全帽检测，交通工具检测，因为数据集的独立所以分别为5个独立模型。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fate66/detece-hand-yolo_v3.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fate66/detece-hand-yolo_v3/issues"
+  },
+  "homepage": "https://github.com/fate66/detece-hand-yolo_v3#readme",
+  "dependencies": {
+    "fs-extra": "^10.1.0",
+    "koa": "^2.13.4",
+    "koa-body": "^6.0.1",
+    "koa-cors": "^0.0.16",
+    "koa-router": "^12.0.0",
+    "python-shell": "^3.0.1"
+  }
+}

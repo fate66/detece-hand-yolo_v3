@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script> <!--  -->
+
+</head>
+
+<body>
+    <div id="container">
+        <video id="video-local" autoplay playsinline></video>
+        <button id="showVideo">打开摄像头</button>
+        <button id="stopVideo">关闭摄像头</button>
+        <p>显示摄像头预览的内容，网页上由元素video来呈现。</p>
+        <p>点击打开摄像头按钮后，浏览器会询问是否允许，请点击“允许”。</p>
+        <div id="errorMsg"></div>
+        <div id="tipMsg"></div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+
+
+    <script>
+
+
+        setInterval(() => {
+            console.log('开始截图')
+            var mCanvas = document.querySelector('canvas');
+
+            var video = document.querySelector('video');
+
+            //600,radio*600 分别对应宽高
+            mCanvas.getContext('2d').drawImage(video, 0, 0, mCanvas.width, mCanvas.height);
+
+        }, 3000)
+
+
+
+
+
+
+        const constraints = window.constraints = {
+            audio: false,
+            video: true
+        };
+
+
+        function showErrMsg(msg, error) {
+            const errorElement = document.querySelector('#errorMsg');
+            errorElement.innerHTML += `<p>${msg}</p>`;
+            if (typeof error !== 'undefined') {
+                console.error(error);
+            }
+        }
+
+        function showMsg(msg) {
+            const msgEle = document.querySelector('#tipMsg');
+            msgEle.innerHTML += `<p>-> ${msg}</p>`;
+            console.log(msg);
+        }
+        async function openCamera(e) {
+            try {
+                showMsg('正在打开摄像头');
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                showMsg('获取到了stream');
+                gotStream(stream);
+                e.target.disabled = true;
+            } catch (err) {
+                onErr(err);
+            }
+
+        }
+
+        function gotStream(stream) {
+            console.log(stream, 'stream')
+            const videoEle = document.querySelector('video');
+            const videoTracks = stream.getVideoTracks();
+            showMsg(`正在使用的设备: ${videoTracks[0].label}`);
+            window.stream = stream;
+            videoEle.srcObject = stream;
+        }
+
+
+        function stopVideo(e) {
+            showMsg("停止视频");
+            const videoElem = document.querySelector('video');
+            const stream = videoElem.srcObject;
+
+            document.querySelector('#showVideo').disabled = false; // 允许开启
+
+            if (stream == null) {
+                return;
+            }
+            const tracks = stream.getTracks();
+
+            tracks.forEach(function (track) {
+                track.stop();
+            });
+            videoElem.srcObject = null;
+        }
+
+
+        document.getElementById('showVideo').addEventListener('click', function (e) {
+            openCamera(e)
+        })
+
+
+        document.getElementById('submit').addEventListener('click', function () {
+            var file = document.getElementById('file').files[0]
+            if (!file) {
+                alert('请上传文件')
+                return
+            }
+            console.log(file)
+
+            var formdata = new FormData()
+            formdata.append("file", file)
+
+            var xhr = new XMLHttpRequest()
+            xhr.open("post", "http://localhost:3000/upload")
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    const result = JSON.parse(xhr.response)
+                    console.log('结果是：', result)
+                }
+            }
+            xhr.send(formdata)
+        })
+    </script>
+</body>
+
+</html>

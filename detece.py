@@ -73,6 +73,7 @@ def detect(file, base):
     classes = base['classes']
     num_classes = len(classes)
     device = base['device']
+    type = base['type']
 
     use_cuda = torch.cuda.is_available()
     colors = [(v // 32 * 64 + 64, (v // 8) % 4 * 64, v % 8 * 32)
@@ -115,18 +116,22 @@ def detect(file, base):
             torch.cuda.synchronize()
 
     # for r in result:
-        # print('识别结果------')
-        # print(r)
+    #     print('识别结果------')
+    #     print(r)
 
     for *xyxy, conf, cls_conf, cls in detections:
         # label = '%s %.2f' % (classes[int(cls)], conf)
         # label = '%s' % (classes[int(cls)])
-
+        # print('识别结果------')
+        # print(label)
         # print(conf, cls_conf)
         # xyxy = refine_hand_bbox(xyxy,im0.shape)
         # react = int(xyxy[0]), int(xyxy[1])+6, int(xyxy[2]), int(xyxy[3])
-        # 转数组
-        react = [int(xyxy[0]), int(xyxy[1])+6, int(xyxy[2]), int(xyxy[3])]
+        if type == 'hand':
+            # 转数组
+            res = [int(xyxy[0]), int(xyxy[1])+6, int(xyxy[2]), int(xyxy[3])]
+        else:
+            res = '%s' % (classes[int(cls)])
         # 只要一只手
         break
         # if int(cls) == 0:
@@ -137,7 +142,7 @@ def detect(file, base):
         #         15, 155, 255), line_thickness=3)
     s2 = time.time()
     # print("detect time: {} \n".format(s2 - t))
-    return react
+    return res
 
 
 def initModel(type='hand'):
@@ -145,6 +150,10 @@ def initModel(type='hand'):
         # 手
         voc_config = './cfg/hand.data'  # 模型相关配置文件
         model_path = './weights/hand/hand_416.pt'  # 检测模型路径
+    else:
+        # 左右手
+        voc_config = './cfg/handLR.data'  # 模型相关配置文件
+        model_path = './weights/handLR/latest_416-20220101.pt'  # 检测模型路径
     model_cfg = 'yolo'  # yolo / yolo-tiny 模型结构
 
     # with torch.no_grad():#设置无梯度运行模型推理
@@ -180,7 +189,7 @@ def initModel(type='hand'):
         print('error model not exists')
         return False
     model.to(device).eval()  # 模型模式设置为 eval
-    return {'model': model, 'classes': classes, 'device': device}
+    return {'model': model, 'classes': classes, 'device': device, 'type': type}
 
 
 def predict(file, model):

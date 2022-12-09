@@ -10,7 +10,7 @@ import cv2
 
 if __name__ == '__main__':
     cap = cv2.VideoCapture(0)
-    base = initModel()
+    base = initModel('left')
     while (True):
         ret, frame = cap.read()
         # print(frame)
